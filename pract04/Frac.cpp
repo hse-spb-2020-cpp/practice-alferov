@@ -1,4 +1,5 @@
 #include <iostream>
+#include <sstream>
 #include <cassert>
 
 namespace Pract04 {
@@ -46,6 +47,17 @@ public:
         return *this;
     }
 
+    Frac& operator-=(const Frac& x) {
+        int denom = denom_ * x.getDenom();
+        int num = num_ * x.getDenom() - denom_ * x.getNum();
+        int g = gcd(num, denom);
+        denom /= g;
+        num /= g;
+        num_ = num;
+        denom_ = denom;
+        return *this;
+    }
+
     Frac& operator++() {
         num_ += denom_;
         return *this;
@@ -54,6 +66,17 @@ public:
     Frac operator++(int) {
         Frac f = *this;
         ++(*this);
+        return f;
+    }
+
+    Frac& operator--() {
+        num_ -= denom_;
+        return *this;
+    }
+
+    Frac operator--(int) {
+        Frac f = *this;
+        --(*this);
         return f;
     }
 
@@ -89,6 +112,10 @@ Frac operator+(Frac a, const Frac& b) {
     return a += b;
 }
 
+Frac operator-(Frac a, const Frac& b) {
+    return a -= b;
+}
+
 std::istream& operator>>(std::istream& is, Frac& f) {
     int n, d;
     char c;
@@ -107,10 +134,11 @@ std::ostream& operator<<(std::ostream& os, const Frac& f) {
 #define TEST_CONSTRUCTOR
 #define TEST_COMPARATOR
 #define TEST_PLUS
-// #define TEST_MINUS
+#define TEST_MINUS
 #define TEST_INCREMENT
-// #define TEST_DECREMENT
-// #define TEST_ASSIGNMENT
+#define TEST_DECREMENT
+#define TEST_INPUT
+#define TEST_OUTPUT
 
 // Тесты
 
@@ -155,7 +183,10 @@ void test_plus() {
 #ifdef TEST_MINUS
 
 void test_minus() {
-
+    Pract04::Frac x(2,3);
+    x -= Pract04::Frac(1,6);
+    assert(x == Pract04::Frac(1,2));
+    assert(Pract04::Frac(2,3) - Pract04::Frac(1,6) == Pract04::Frac(1,2));
     std::cout << "TEST_MINUS passed" << std::endl;
 }
 
@@ -176,20 +207,41 @@ void test_increment() {
 #ifdef TEST_DECREMENT
 
 void test_decrement() {
-
+    Pract04::Frac f(10, 4);
+    assert((f--) == Pract04::Frac(5, 2));
+    assert((--f) == Pract04::Frac(1, 2));
+    assert(f == Pract04::Frac(1, 2));
     std::cout << "TEST_DECREMENT passed" << std::endl;
 }
 
 #endif // TEST_DECREMENT
 
-#ifdef TEST_ASSIGNMENT
+#ifdef TEST_INPUT
 
-void test_assignment() {
-
-    std::cout << "TEST_ASSIGNMENT passed" << std::endl;
+void test_input() {
+    std::istringstream is("1/2");
+    Pract04::Frac f;
+    is >> f;
+    assert(f == Pract04::Frac(1,2));
+    is = std::istringstream("2/4");
+    is >> f;
+    assert(f == Pract04::Frac(1,2));
+    std::cout << "TEST_INPUT passed" << std::endl;
 }
 
-#endif // TEST_ASSIGNMENT
+#endif // TEST_INPUT
+
+#ifdef TEST_OUTPUT
+
+void test_output() {
+    std::ostringstream os;
+    Pract04::Frac f(1);
+    os << f << " " << Pract04::Frac(2,4);
+    assert(os.str() == "1/1 1/2");
+    std::cout << "TEST_OUTPUT passed" << std::endl;
+}
+
+#endif // TEST_OUTPUT
 
 int main() {
 #ifdef TEST_CONSTRUCTOR
@@ -216,9 +268,13 @@ int main() {
     test_decrement();
 #endif // TEST_DECREMENT
 
-#ifdef TEST_ASSIGNMENT
-    test_assignment();
-#endif // TEST_ASSIGNMENT
+#ifdef TEST_INPUT
+    test_input();
+#endif // TEST_INPUT
+
+#ifdef TEST_OUTPUT
+    test_output();
+#endif // TEST_OUTPUT
 
     return 0;
 }
